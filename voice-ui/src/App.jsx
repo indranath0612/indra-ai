@@ -25,7 +25,7 @@ function App() {
 
   const chatEndRef = useRef(null);
 
-  const BASE = "http://localhost:8000";
+  const BASE = "https://indra-ai-backend.onrender.com";
 
   // =========================
   // INIT
