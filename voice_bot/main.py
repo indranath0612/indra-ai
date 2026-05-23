@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from pypdf import PdfReader
 import requests
 import sqlite3
 import os
@@ -176,8 +177,14 @@ async def chat(req: ChatRequest):
                 },
                 {
                     "role": "user",
-                    "content": req.text
-                }
+                    "content": f"""
+                 PDF CONTENT:
+                {uploaded_pdf_text}
+
+                USER QUESTION:
+                {req.text}
+                """
+        }
             ]
         }
 
@@ -240,11 +247,19 @@ async def chat(req: ChatRequest):
         }
 
 # =========================
+# PDF STORAGE
+# =========================
+
+uploaded_pdf_text = ""
+
+# =========================
 # PDF UPLOAD
 # =========================
 
 @app.post("/upload-pdf")
 async def upload_pdf(file: UploadFile = File(...)):
+
+    global uploaded_pdf_text
 
     try:
 
@@ -260,15 +275,31 @@ async def upload_pdf(file: UploadFile = File(...)):
         with open(filepath, "wb") as f:
             f.write(contents)
 
+        # =========================
+        # READ PDF TEXT
+        # =========================
+
+        reader = PdfReader(filepath)
+
+        extracted_text = ""
+
+        for page in reader.pages:
+
+            text = page.extract_text()
+
+            if text:
+                extracted_text += text + "\n"
+
+        uploaded_pdf_text = extracted_text[:15000]
+
         return {
             "success": True,
-            "message": "PDF uploaded successfully",
-            "filename": file.filename
+            "message": "PDF uploaded and processed successfully"
         }
 
     except Exception as e:
 
-        print("UPLOAD ERROR:", e)
+        print("PDF ERROR:", e)
 
         return {
             "success": False,
