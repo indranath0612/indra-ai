@@ -13,7 +13,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-SARVAM_API_KEY = "YOUR_API_KEY"
+SARVAM_API_KEY = "sk_qn8bdcmb_qxZHO0uFWakjJSlGLOcYCQkj"
 
 class ChatRequest(BaseModel):
     text: str
