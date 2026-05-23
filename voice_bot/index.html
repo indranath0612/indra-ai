@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Voice Bot</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 420px;
+            height: 650px;
+            background: #1e293b;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 15px;
+            background: #020617;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .chat {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+        }
+
+        .msg {
+            margin: 8px 0;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+        .user {
+            background: #2563eb;
+            align-self: flex-end;
+        }
+
+        .bot {
+            background: #334155;
+            align-self: flex-start;
+        }
+
+        .input-area {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            background: #020617;
+        }
+
+        .row {
+            display: flex;
+            margin-top: 5px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            outline: none;
+        }
+
+        button {
+            margin-left: 5px;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .send-btn {
+            background: #22c55e;
+        }
+
+        .mic-btn {
+            background: #f59e0b;
+        }
+
+        .upload-btn {
+            background: #6366f1;
+            margin-top: 5px;
+        }
+
+        .status {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 3px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="header">🤖 Voice Bot + PDF</div>
+
+    <div class="chat" id="chat"></div>
+
+    <div class="input-area">
+        
+        <!-- TEXT INPUT -->
+        <div class="row">
+            <input id="input" placeholder="Type a message..." />
+            <button class="send-btn" onclick="sendMessage()">Send</button>
+            <button class="mic-btn" onclick="startVoice()">🎤</button>
+        </div>
+
+        <!-- PDF UPLOAD -->
+        <div class="row">
+            <input type="file" id="pdfFile" accept="application/pdf" />
+            <button class="upload-btn" onclick="uploadPDF()">Upload</button>
+        </div>
+
+        <div class="status" id="status"></div>
+
+    </div>
+</div>
+
+<script>
+const API_URL = "http://localhost:8000/chat";
+const UPLOAD_URL = "http://localhost:8000/upload-pdf";
+
+const chatBox = document.getElementById("chat");
+const statusBox = document.getElementById("status");
+
+// SESSION ID
+let SESSION_ID = localStorage.getItem("session_id");
+
+if (!SESSION_ID) {
+    SESSION_ID = "session-" + Math.random().toString(36).substring(2);
+    localStorage.setItem("session_id", SESSION_ID);
+}
+
+// ADD MESSAGE
+function addMessage(text, sender) {
+    const msg = document.createElement("div");
+    msg.classList.add("msg", sender);
+    msg.innerText = text;
+    chatBox.appendChild(msg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// SEND MESSAGE
+async function sendMessage() {
+    const input = document.getElementById("input");
+    const text = input.value.trim();
+
+    if (!text) return;
+
+    addMessage(text, "user");
+    input.value = "";
+
+    const loading = document.createElement("div");
+    loading.classList.add("msg", "bot");
+    loading.innerText = "Typing...";
+    chatBox.appendChild(loading);
+
+    try {
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                text: text,
+                session_id: SESSION_ID
+            })
+        });
+
+        const data = await res.json();
+        chatBox.removeChild(loading);
+
+        addMessage(data.reply, "bot");
+        speak(data.reply);
+
+    } catch (err) {
+        chatBox.removeChild(loading);
+        addMessage("Error connecting to server", "bot");
+    }
+}
+
+// ENTER KEY
+document.getElementById("input").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") sendMessage();
+});
+
+// VOICE INPUT
+function startVoice() {
+    if (!('webkitSpeechRecognition' in window)) {
+        alert("Voice not supported");
+        return;
+    }
+
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = "en-IN";
+
+    addMessage("🎤 Listening...", "bot");
+    recognition.start();
+
+    recognition.onresult = function(event) {
+        const text = event.results[0][0].transcript;
+        document.getElementById("input").value = text;
+        sendMessage();
+    };
+}
+
+// VOICE OUTPUT
+function speak(text) {
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-IN";
+    speechSynthesis.speak(speech);
+}
+
+// PDF UPLOAD
+async function uploadPDF() {
+    const fileInput = document.getElementById("pdfFile");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Select a PDF first");
+        return;
+    }
+
+    statusBox.innerText = "Uploading PDF...";
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("session_id", SESSION_ID);
+
+    try {
+        const res = await fetch(UPLOAD_URL, {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+
+        statusBox.innerText = "✅ PDF uploaded successfully!";
+        addMessage("📄 PDF uploaded. You can now ask questions from it.", "bot");
+
+    } catch (err) {
+        statusBox.innerText = "❌ Upload failed";
+    }
+}
+</script>
+
+</body>
+</html>
