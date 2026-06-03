@@ -164,7 +164,7 @@ async def chat(req: ChatRequest):
         }
 
         payload = {
-            "model": "sarvam-m",
+            "model": "sarvam-30b",
             "messages": [
                 {
                     "role": "system",
