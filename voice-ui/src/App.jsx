@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 
+document.body.style.margin = "0";
+document.body.style.overflow = "hidden";
+
+
 function App() {
   // =========================
   // STATES
@@ -524,7 +528,7 @@ function App() {
                 ...styles.chatItem,
                 background:
                   activeSession === s.id
-                    ? "#343541"
+                    ? "#ececec"
                     : "transparent",
               }}
             >
@@ -609,12 +613,12 @@ function App() {
               <div
                 style={{
                   ...styles.message,
-                  background:
-                    m.sender === "user"
-                      ? "#2563eb"
-                      : "#202123",
-                }}
-              >
+                  ...(m.sender === "user"
+                  ? styles.userMessage
+                  : styles.botMessage),
+  }}
+      >
+              
                 {m.text}
 
                 {m.sender === "bot" &&
@@ -628,10 +632,10 @@ function App() {
                         speak(m.text)
                       }
                     >
-                      {speakingText ===
-                      m.text
+                      {speakingText === m.text
                         ? "⏹️"
-                        : "🔊"}
+                       : "🔊"}
+                
                     </button>
                   )}
               </div>
@@ -701,48 +705,69 @@ function App() {
 // STYLES
 // =========================
 const styles = {
+  // =========================
+  // PAGE
+  // =========================
+
   page: {
     display: "flex",
     height: "100vh",
-    background: "#343541",
-    color: "white",
-    fontFamily: "Arial",
+    width: "100vw",
+    background: "#ffffff",
+    color: "#111111",
+    fontFamily:
+      "'Inter', 'Segoe UI', Arial, sans-serif",
+    overflow: "hidden",
   },
 
+  // =========================
+  // SIDEBAR
+  // =========================
+
   sidebar: {
-    width: "260px",
-    background: "#202123",
-    padding: "20px",
+    width: "300px",
+    minWidth: "300px",
+    background: "#f9f9f9",
+    padding: "10px",
     display: "flex",
     flexDirection: "column",
-    borderRight: "1px solid #2d2d2d",
+    overflow: "hidden",
+    borderRight: "1px solid #e5e5e5",
   },
 
   logo: {
     fontSize: "28px",
-    fontWeight: "bold",
-    marginBottom: "5px",
+    fontWeight: "700",
+    color: "#111111",
+    marginTop: "10px",
+    marginBottom: "4px",
+    paddingLeft: "10px",
   },
 
   powered: {
-    color: "#8e8ea0",
+    color: "#666666",
     marginBottom: "20px",
+    fontSize: "13px",
+    paddingLeft: "12px",
   },
 
   newChatBtn: {
-    padding: "12px",
-    borderRadius: "10px",
-    border: "none",
-    background: "#343541",
-    color: "white",
+    padding: "14px",
+    borderRadius: "12px",
+    border: "1px solid #dcdcdc",
+    background: "#ffffff",
+    color: "#111111",
     cursor: "pointer",
-    marginBottom: "20px",
-    fontSize: "16px",
+    marginBottom: "14px",
+    fontSize: "14px",
+    fontWeight: "600",
   },
 
   chatList: {
     flex: 1,
     overflowY: "auto",
+    overflowX: "hidden",
+    paddingRight: "2px",
   },
 
   chatItem: {
@@ -751,12 +776,18 @@ const styles = {
     justifyContent: "space-between",
     padding: "12px",
     borderRadius: "10px",
-    marginBottom: "10px",
+    marginBottom: "4px",
     cursor: "pointer",
+    transition: "0.2s",
   },
 
   chatName: {
     flex: 1,
+    color: "#111111",
+    fontSize: "14px",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   },
 
   actionBtns: {
@@ -765,183 +796,247 @@ const styles = {
   },
 
   iconBtn: {
-    background: "#444654",
+    background: "#efefef",
     border: "none",
-    color: "white",
-    borderRadius: "6px",
+    color: "#111111",
+    borderRadius: "8px",
     padding: "6px",
     cursor: "pointer",
+    fontSize: "12px",
   },
 
   renameInput: {
     flex: 1,
-    background: "#40414f",
-    color: "white",
-    border: "none",
-    borderRadius: "6px",
-    padding: "6px",
+    background: "#ffffff",
+    color: "#111111",
+    border: "1px solid #dcdcdc",
+    borderRadius: "8px",
+    padding: "8px",
+    fontSize: "13px",
   },
 
   logoutBtn: {
-    padding: "12px",
-    borderRadius: "10px",
+    padding: "13px",
+    borderRadius: "12px",
     border: "none",
     background: "#ef4444",
     color: "white",
     cursor: "pointer",
-    marginTop: "20px",
+    marginTop: "12px",
+    fontSize: "14px",
+    fontWeight: "600",
   },
+
+  // =========================
+  // MAIN
+  // =========================
 
   main: {
     flex: 1,
     display: "flex",
     flexDirection: "column",
+    background: "#ffffff",
+    overflow: "hidden",
   },
+
+  // =========================
+  // CHAT AREA
+  // =========================
 
   chatArea: {
     flex: 1,
     overflowY: "auto",
-    padding: "30px",
+    overflowX: "hidden",
+    padding: "24px",
     display: "flex",
     flexDirection: "column",
-    gap: "20px",
+    gap: "24px",
+    boxSizing: "border-box",
+    background: "#ffffff",
+    width: "100%",
   },
 
-  message: {
-    maxWidth: "70%",
-    padding: "16px",
-    borderRadius: "14px",
-    lineHeight: 1.6,
-    fontSize: "16px",
-  },
+  // =========================
+  // MESSAGES
+  // =========================
 
-  bottomBar: {
-    display: "flex",
-    gap: "10px",
-    padding: "20px",
-    borderTop: "1px solid #444",
-    background: "#343541",
-  },
+ // =========================
+// MESSAGES
+// =========================
+
+message: {
+  fontSize: "15px",
+  lineHeight: 1.8,
+  wordBreak: "break-word",
+  whiteSpace: "pre-wrap",
+},
+
+userMessage: {
+  alignSelf: "flex-end",
+  background: "#111111",
+  color: "#ffffff",
+  padding: "14px 18px",
+  borderRadius: "18px",
+  maxWidth: "70%",
+  width: "fit-content",
+  textAlign: "left",
+},
+
+botMessage: {
+  alignSelf: "flex-start",
+  background: "transparent",
+  color: "#111111",
+  padding: "0px",
+  borderRadius: "0px",
+  boxShadow: "none",
+  width: "fit-content",
+  maxWidth: "95%",
+  textAlign: "left",
+},
+
+listening: {
+  color: "#10b981",
+  fontWeight: "600",
+  fontSize: "14px",
+},
+
+speakBtn: {
+  marginLeft: "10px",
+  background: "transparent",
+  border: "none",
+  color: "#666666",
+  cursor: "pointer",
+  fontSize: "14px",
+},
+  // =========================
+  // INPUT BAR
+  // =========================
+
+ bottomBar: {
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  padding: "16px 24px",
+  borderTop: "1px solid #e5e5e5",
+  background: "#ffffff",
+},
 
   input: {
     flex: 1,
-    padding: "16px",
-    borderRadius: "12px",
-    border: "none",
+    padding: "16px 20px",
+    borderRadius: "28px",
+    border: "1px solid #dcdcdc",
     outline: "none",
-    background: "#40414f",
-    color: "white",
-    fontSize: "16px",
+    background: "#ffffff",
+    color: "#111111",
+    fontSize: "15px",
   },
 
   sendBtn: {
-    width: "60px",
+    width: "48px",
+    height: "48px",
     border: "none",
-    borderRadius: "12px",
-    background: "#2563eb",
-    color: "white",
+    borderRadius: "50%",
+    background: "#111111",
+    color: "#ffffff",
     cursor: "pointer",
-    fontSize: "20px",
+    fontSize: "18px",
+    fontWeight: "bold",
   },
 
   micBtn: {
-    width: "60px",
+    width: "48px",
+    height: "48px",
     border: "none",
-    borderRadius: "12px",
+    borderRadius: "50%",
     background: "#10b981",
-    color: "white",
+    color: "#ffffff",
     cursor: "pointer",
-    fontSize: "20px",
+    fontSize: "18px",
   },
 
   pdfBtn: {
-    width: "60px",
-    height: "60px",
-    borderRadius: "12px",
+    width: "48px",
+    height: "48px",
+    borderRadius: "50%",
     background: "#7c3aed",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     cursor: "pointer",
-    fontSize: "22px",
-  },
-
-  listening: {
-    color: "#22c55e",
-    fontWeight: "bold",
     fontSize: "18px",
+    color: "white",
   },
 
-  speakBtn: {
-    marginLeft: "10px",
-    background: "transparent",
-    border: "none",
-    color: "white",
-    cursor: "pointer",
-  },
+  // =========================
+  // AUTH PAGE
+  // =========================
 
   authPage: {
     height: "100vh",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    background:
-      "linear-gradient(to bottom right,#020617,#0f172a,#1e293b)",
+    background: "#ffffff",
   },
 
   authCard: {
-    width: "400px",
-    background: "#111827",
-    padding: "40px",
-    borderRadius: "20px",
+    width: "380px",
+    background: "#ffffff",
+    padding: "32px",
+    borderRadius: "18px",
     display: "flex",
     flexDirection: "column",
-    gap: "20px",
-    boxShadow:
-      "0 0 40px rgba(59,130,246,0.3)",
+    gap: "18px",
+    border: "1px solid #e5e5e5",
   },
 
   authTitle: {
     textAlign: "center",
-    fontSize: "36px",
+    fontSize: "30px",
     margin: 0,
-    color: "white",
+    color: "#111111",
   },
 
   authSubtitle: {
     textAlign: "center",
-    color: "#94a3b8",
-    marginTop: "-10px",
+    color: "#666666",
+    marginTop: "-6px",
+    fontSize: "14px",
   },
 
   authInput: {
-    padding: "16px",
+    padding: "14px",
     borderRadius: "12px",
-    border: "none",
-    background: "#1e293b",
-    color: "white",
-    fontSize: "16px",
+    border: "1px solid #dcdcdc",
+    background: "#ffffff",
+    color: "#111111",
+    fontSize: "14px",
+    outline: "none",
   },
 
   authBtn: {
-    padding: "16px",
+    padding: "14px",
     borderRadius: "12px",
     border: "none",
-    background:
-      "linear-gradient(to right,#2563eb,#7c3aed)",
-    color: "white",
-    fontSize: "18px",
+    background: "#111111",
+    color: "#ffffff",
+    fontSize: "15px",
     cursor: "pointer",
+    fontWeight: "600",
   },
 
   switchBtn: {
     padding: "12px",
-    borderRadius: "10px",
-    border: "1px solid #475569",
-    background: "transparent",
-    color: "white",
+    borderRadius: "12px",
+    border: "1px solid #dcdcdc",
+    background: "#ffffff",
+    color: "#111111",
     cursor: "pointer",
+    fontWeight: "600",
+    fontSize: "14px",
   },
 };
+
 
 export default App;
