@@ -890,7 +890,7 @@ botMessage: {
   borderRadius: "0px",
   boxShadow: "none",
   width: "fit-content",
-  maxWidth: "95%",
+  maxWidth: "50%",
   textAlign: "left",
 },
 
